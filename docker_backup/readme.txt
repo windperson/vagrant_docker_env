@@ -1,0 +1,1 @@
+Since Virtual Box will remove all attached disk file when it removed, so this folder is for backing up disk image file.
