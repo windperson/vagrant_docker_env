@@ -20,17 +20,27 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   file_path = Pathname.new(attach_dir).join(file_disk)
   backup_path = Pathname.new(backup_dir).join(file_disk)
 
+  status = nil
+  if not File.exist?(backup_path) and not File.exist?(file_path)
+    status = 0
+  elsif File.exist?(backup_path) and not File.exist?(file_path) #restore from backup path
+    puts "restore from backuped docker content disk"
+    FileUtils.cp(backup_path, file_path)
+    status = 1
+  else
+    status = 2 #normal boot up after everything is ready
+  end
+
   config.vm.provider "virtualbox" do |vb|
     vb.customize ["modifyvm", :id, "--memory", "4096"]
     vb.customize ["modifyvm", :id, "--cpus", "2"]
 
-    if not File.exist?(backup_path) and not File.exist?(file_path) # no existing file and no already backuped file.
+    if status == 0 # no existing file and no already backuped file.
       # puts "create new docker content disk file"
       vb.customize ['createhd', '--filename', file_path, '--size', 100 * 1024]
       vb.customize ['storageattach', :id, '--storagectl', 'SATA', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', file_path]
-    elsif File.exist?(backup_path) and not File.exist?(file_path) #restore from backup path
-      puts "restore from backuped docker content disk"
-      FileUtils.cp(backup_path, file_path)
+    elsif status == 1 #restore from backup path
+      puts "attach #{file_path} disk image file"
       vb.customize ['storageattach', :id, '--storagectl', 'SATA', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', file_path]
     end
   end
