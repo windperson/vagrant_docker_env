@@ -1,0 +1,11 @@
+web:
+  build: ./test_python
+  command: python app.py
+  ports:
+   - "80:5000"
+  volumes:
+   - ./test_python:/code
+  links:
+   - redis
+redis:
+  image: redis
