@@ -41,3 +41,9 @@ service 'docker' do
     action [:disable, :stop]
     not_if {node[:docker][:auto_start]}
 end
+
+group 'docker' do
+  members node[:'docker'][:'group_members']
+  append true
+  not_if {node[:'docker'][:'group_members'] == nil}
+end
