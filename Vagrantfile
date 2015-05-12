@@ -54,7 +54,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.synced_folder "./log/docker", "/docker_log", create: true
-  config.vm.synced_folder "./docker_work", "/docker_work", create: true
   config.vm.synced_folder "./proj" , "/proj"
   config.vm.synced_folder "./server_key", "/server_key"
 
@@ -84,6 +83,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       chef.add_recipe "prepare_disk::mount"
     end
     chef.add_recipe "docker::compose"
+    chef.add_recipe "docker::docker-enter"
 
     chef.json = {
       "docker" => {
