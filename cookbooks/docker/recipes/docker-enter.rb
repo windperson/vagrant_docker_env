@@ -1,5 +1,6 @@
 service 'docker' do
     action :start
+    not_if 'service docker status | grep running'
 end
 
 bash 'install-nsenter' do
