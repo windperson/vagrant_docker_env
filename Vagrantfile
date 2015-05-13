@@ -55,7 +55,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.synced_folder "./log/docker", "/docker_log", create: true
   config.vm.synced_folder "./proj" , "/proj"
-  config.vm.synced_folder "./server_key", "/server_key"
 
   config.trigger.before :destroy do
     if File.exist?(file_path)
