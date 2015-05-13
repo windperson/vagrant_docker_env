@@ -9,15 +9,17 @@ end
 
 bash 'initialize-physical-partition' do
   code "pvcreate #{node[:'prepare_disk'][:'physic_dev_path']}1"
+	not_if "pvdisplay -s | grep /dev/#{dev_name}1"
 end
 
 bash 'create-lvm-group' do
   code "vgcreate #{node[:'prepare_disk'][:'logic_volume_group']} #{node[:'prepare_disk'][:'physic_dev_path']}1"
-  not_if "vgscan | grep #{node[:'prepare_disk'][:'logic_volume_group']}"
+  not_if "vgdisplay | grep \"VG Name               #{node[:'prepare_disk'][:'logic_volume_group']}\""
 end
 
 bash 'create-lvm-volume' do
   code "lvcreate -l 100%FREE -n #{node[:'prepare_disk'][:'logic_volume']} #{node[:'prepare_disk'][:'logic_volume_group']}"
+  not_if "lvdisplay | grep \"LV Path                /dev/#{node[:'prepare_disk'][:'logic_volume_group']}/#{node[:'prepare_disk'][:'logic_volume']}\""
 end
 
 bash 'format-partition' do
