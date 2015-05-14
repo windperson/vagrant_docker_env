@@ -1,11 +1,18 @@
 web:
-  build: ./test_python
-  command: python app.py
+  build: ./nginx
+  links:
+    - phpfpm
+  volumes_from:
+    - phpfpm
   ports:
-   - "80:5000"
+    - "80:80"
+
+phpfpm:
+  build: ./phpfpm
   volumes:
-   - ./test_python:/code
+   - phpfpm/src:/var/www/html
   links:
    - redis
+
 redis:
   image: redis
