@@ -10,12 +10,21 @@ VAGRANTFILE_API_VERSION = "2" if not defined? VAGRANTFILE_API_VERSION
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+  config.vm.provider "virtualbox"
+  config.vm.provider "parallels"
+  config.vm.provider "vmware_fusion"
+
   config.vm.box = "centos65_docker"
+  if Vagrant.has_plugin?("vagrant-cachier")
+    	# Configure cached packages to be shared between instances of the same base box.
+    	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
+    		config.cache.scope = :box
+  end
   config.ssh.insert_key = false
   config.hostmanager.enabled = true
   config.vm.hostname = 'docker-host'
   config.vm.define "docker-host"
-  config.vm.network :private_network, :ip => '192.168.100.100'
+  config.vm.network :private_network, :ip => '192.168.101.101'
   file_disk = "disk.vdi"
   attach_dir = "./docker_data"
   backup_dir = "./docker_backup"
