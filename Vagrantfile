@@ -14,7 +14,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "parallels"
   config.vm.provider "vmware_fusion"
 
-  config.vm.box = "centos65_docker"
+  config.vm.box = "CentOS6.5Docker"
   if Vagrant.has_plugin?("vagrant-cachier")
     	# Configure cached packages to be shared between instances of the same base box.
     	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
@@ -66,13 +66,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.synced_folder "./proj" , "/proj"
 
   config.trigger.before :destroy do
-    if File.exist?(file_path)
-      confirm = nil
-      until ["Y", "y", "N", "n"].include?(confirm)
-        confirm = ask "Warning! Docker data disk should be backuped to #{backup_path} before VM delete!\r\nBackup the Docker data disk? (Y/N) "
-      end
-      if confirm.upcase == "Y"
-        FileUtils.cp(file_path, backup_path)
+    shutdown = nil
+    until ["Y", "y", "N", "n"].include?(shutdown)
+        shutdown = ask "Warning! It is recommended to first run \"vagrant halt\" to stop VM then call \"vagrant destory\" if you want to backup Docker data disk;\r\nProceed to destroy VM? (Y/N) "
+    end
+    if shutdown.upcase == "N"
+       exit
+    else
+      if File.exist?(file_path)
+        confirm = nil
+        until ["Y", "y", "N", "n"].include?(confirm)
+          confirm = ask "Warning! Docker data disk should be backuped to #{backup_path} before VM delete!\r\nBackup the Docker data disk? (Y/N) "
+        end
+        if confirm.upcase == "Y"
+          FileUtils.cp(file_path, backup_path)
+        end
       end
     end
   end
@@ -91,7 +99,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       chef.add_recipe "prepare_disk::mount"
     end
     chef.add_recipe "docker::compose"
-    chef.add_recipe "docker::docker-enter"
 
     chef.json = {
       "docker" => {
