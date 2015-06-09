@@ -63,7 +63,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.synced_folder "./log/docker", "/docker_log", create: true
-  config.vm.synced_folder "./proj" , "/proj"
+  config.vm.synced_folder "./proj" , "/proj", mount_options: ["dmode=777,fmode=777"]
 
   config.trigger.before :destroy do
     if File.exist?(file_path)

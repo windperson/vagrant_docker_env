@@ -42,8 +42,26 @@ service 'docker' do
     not_if {node[:docker][:auto_start]}
 end
 
+service 'docker' do
+    action [:enable, :start]
+    only_if {node[:docker][:auto_start]}
+end
+
+template '/etc/logrotate.d/docker-container' do
+	source 'docker-container-logrotate.erb'
+	owner 'root'
+	group 'root'
+	mode 00644
+  only_if {node[:docker][:container_logrotate]}
+end
+
 group 'docker' do
   members node[:'docker'][:'group_members']
   append true
   not_if {node[:'docker'][:'group_members'] == nil}
+end
+
+bash 'add-firewall-rule' do
+	code 'iptables -I INPUT 4 -i docker0 -j ACCEPT'
+	only_if 'iptables -S INPUT | grep "docker0 -j ACCEPT"'
 end

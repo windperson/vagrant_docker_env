@@ -3,6 +3,8 @@ default['docker']['version'] = '1.5.0-1.el6'
 # default will be logging on /var/lib/docker
 default['docker']['logfile'] = nil
 
+default['docker']['container_logrotate'] = true
+
 # use string array to specify
 default['docker']['group_members'] = nil
 
