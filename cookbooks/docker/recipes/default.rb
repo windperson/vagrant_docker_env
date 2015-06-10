@@ -15,7 +15,7 @@ end
 
 yum_package 'docker-io' do
 	action :install
-  version "#{node[:'docker'][:'version']}"
+  # version "#{node[:'docker'][:'version']}"
   options "--enablerepo=epel-testing"
   flush_cache [:before]
 end
