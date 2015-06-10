@@ -13,11 +13,21 @@ package ['device-mapper', 'device-mapper-event-libs'] do
   action :upgrade
 end
 
-yum_package 'docker-io' do
+package "install-docker-official-binary" do
+  package_name 'docker-io'
 	action :install
-  # version "#{node[:'docker'][:'version']}"
   options "--enablerepo=epel-testing"
   flush_cache [:before]
+  only_if {node[:docker][:get_official_binary]}
+end
+
+package 'install-docker-yum-version' do
+  package_name 'docker-io'
+	action :install
+  allow_downgrade true
+  flush_cache [:before]
+  version "#{node[:'docker'][:'version']}"
+  not_if {node[:docker][:get_official_binary]}
 end
 
 remote_file "/usr/bin/docker" do

@@ -102,7 +102,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     chef.json = {
       "docker" => {
-        # 'version' => "1.6.2-1.el6",
         'auto_start' => false,
         'get_official_binary' => true,
         'group_members' => ['vagrant'],
