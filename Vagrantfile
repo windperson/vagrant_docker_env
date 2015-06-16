@@ -14,7 +14,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "parallels"
   config.vm.provider "vmware_fusion"
 
-  config.vm.box = "CentOS6.5Docker"
+  config.vm.box = "centos7"
   if Vagrant.has_plugin?("vagrant-cachier")
     	# Configure cached packages to be shared between instances of the same base box.
     	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
@@ -88,6 +88,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.omnibus.chef_version = :latest
 
   config.vm.provision "chef_solo" do |chef|
+    chef.add_recipe "firewall"
     chef.add_recipe "htop"
     chef.add_recipe "btrfs"
     chef.add_recipe "docker"

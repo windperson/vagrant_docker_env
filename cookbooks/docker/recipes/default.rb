@@ -1,12 +1,19 @@
-installer = 'epel-release-6-8.noarch.rpm'
+if %w{rhel}.include?(node['platform_family']) and 7 > node['platform_version'].to_i
+  installer = 'epel-release-latest-6.noarch.rpm'
+  docker_package_name = 'docker-io'
+elsif %w{rhel}.include?(node['platform_family'])
+  installer = 'epel-release-latest-7.noarch.rpm'
+  docker_package_name = 'docker'
+end
+
 cookbook_file "#{Chef::Config[:file_cache_path]}/#{installer}" do
   source installer
   action :create_if_missing
 end
 
 rpm_package installer do
-	source "#{Chef::Config[:file_cache_path]}/#{installer}"
-	action [:install]
+  source "#{Chef::Config[:file_cache_path]}/#{installer}"
+  action [:install]
 end
 
 package ['device-mapper', 'device-mapper-event-libs'] do
@@ -14,7 +21,7 @@ package ['device-mapper', 'device-mapper-event-libs'] do
 end
 
 package "install-docker-official-binary" do
-  package_name 'docker-io'
+  package_name docker_package_name
 	action :install
   options "--enablerepo=epel-testing"
   flush_cache [:before]
@@ -22,7 +29,7 @@ package "install-docker-official-binary" do
 end
 
 package 'install-docker-yum-version' do
-  package_name 'docker-io'
+  package_name docker_package_name
 	action :install
   allow_downgrade true
   flush_cache [:before]
@@ -73,5 +80,5 @@ end
 
 bash 'add-firewall-rule' do
 	code 'iptables -I INPUT 4 -i docker0 -j ACCEPT'
-	only_if 'iptables -S INPUT | grep "docker0 -j ACCEPT"'
+	only_if 'iptables -S INPUT | grep "docker0 -j ACCEPT"' and %w{rhel}.include?(node['platform_family']) and 7 > node['platform_version'].to_i
 end
