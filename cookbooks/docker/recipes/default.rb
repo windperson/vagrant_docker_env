@@ -1,9 +1,13 @@
 if %w{rhel}.include?(node['platform_family']) and 7 > node['platform_version'].to_i
-  installer = 'epel-release-latest-6.noarch.rpm'
-  docker_package_name = 'docker-io'
+  installer = 'docker-engine-1.7.0-1.el6.x86_64.rpm'
+  #docker_package_name = 'docker-io'
 elsif %w{rhel}.include?(node['platform_family'])
-  installer = 'epel-release-latest-7.noarch.rpm'
-  docker_package_name = 'docker'
+  installer = 'docker-engine-1.7.0-1.el7.centos.x86_64.rpm'
+  #docker_package_name = 'docker'
+end
+
+package ['device-mapper', 'device-mapper-event-libs'] do
+  action :upgrade
 end
 
 cookbook_file "#{Chef::Config[:file_cache_path]}/#{installer}" do
@@ -11,36 +15,9 @@ cookbook_file "#{Chef::Config[:file_cache_path]}/#{installer}" do
   action :create_if_missing
 end
 
-rpm_package installer do
+yum_package "install-docker" do
   source "#{Chef::Config[:file_cache_path]}/#{installer}"
   action [:install]
-end
-
-package ['device-mapper', 'device-mapper-event-libs'] do
-  action :upgrade
-end
-
-package "install-docker-official-binary" do
-  package_name docker_package_name
-	action :install
-  options "--enablerepo=epel-testing"
-  flush_cache [:before]
-  only_if {node[:docker][:get_official_binary]}
-end
-
-package 'install-docker-yum-version' do
-  package_name docker_package_name
-	action :install
-  allow_downgrade true
-  flush_cache [:before]
-  version "#{node[:'docker'][:'version']}"
-  not_if {node[:docker][:get_official_binary]}
-end
-
-remote_file "/usr/bin/docker" do
-  source node['docker']['official_binary_url']
-  mode 00775
-  only_if {node[:docker][:get_official_binary]}
 end
 
 template '/etc/sysconfig/docker' do

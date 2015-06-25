@@ -3,6 +3,13 @@ bash 'add-permanent-mount-setting' do
   not_if "cat /etc/fstab | grep #{node[:'prepare_disk'][:'logic_volume_group']}/#{node[:'prepare_disk'][:'logic_volume']}"
 end
 
+directory '/var/lib/docker' do
+	owner 'root'
+  group 'root'
+  mode '0700'
+  action :create
+end
+
 bash 'mount' do
 	code 'mount -a'
 end

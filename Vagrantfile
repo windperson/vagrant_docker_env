@@ -24,7 +24,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.hostmanager.enabled = true
   config.vm.hostname = 'docker-host'
   config.vm.define "docker-host"
-  config.vm.network :private_network, :ip => '192.168.101.101'
+  config.vm.network :private_network, :ip => '192.168.201.101'
   file_disk = "disk.vdi"
   attach_dir = "./docker_data"
   backup_dir = "./docker_backup"
@@ -52,7 +52,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       if VAGRANT_COMMAND == "up"
         puts "create new docker content disk file"
       end
-      vb.customize ['createhd', '--filename', file_path, '--size', 100 * 1024]
+      vb.customize ['createhd', '--filename', file_path, '--size', 50 * 1024]
       vb.customize ['storageattach', :id, '--storagectl', 'SATA', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', file_path]
     elsif @status == 1 #restore from backup path
       if VAGRANT_COMMAND == "up"
@@ -104,7 +104,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.json = {
       "docker" => {
         'auto_start' => false,
-        'get_official_binary' => true,
         'group_members' => ['vagrant'],
         'logfile' => '/docker_log/docker.log',
         'options' => '-s btrfs'
