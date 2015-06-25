@@ -14,12 +14,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "parallels"
   config.vm.provider "vmware_fusion"
 
-  config.vm.box = "centos7"
-  if Vagrant.has_plugin?("vagrant-cachier")
-    	# Configure cached packages to be shared between instances of the same base box.
-    	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
-    		config.cache.scope = :box
-  end
+  config.vm.box = "CentOS7"
+  # if Vagrant.has_plugin?("vagrant-cachier")
+  #   	# Configure cached packages to be shared between instances of the same base box.
+  #   	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
+  #   		config.cache.scope = :box
+  # end
   config.ssh.insert_key = false
   config.hostmanager.enabled = true
   config.vm.hostname = 'docker-host'
