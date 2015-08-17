@@ -9,6 +9,10 @@ if %w{rhel}.include?(node['platform_family']) and 7 > node['platform_version'].t
 	  source "#{Chef::Config[:file_cache_path]}/#{installer}"
 	  action [:install]
   end
+else
+  package 'epel-release' do
+    action :install
+  end
 end
 
 package 'htop' do
