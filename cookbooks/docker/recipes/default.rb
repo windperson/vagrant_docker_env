@@ -1,9 +1,11 @@
 if %w{rhel}.include?(node['platform_family']) and 7 > node['platform_version'].to_i
-  installer = 'docker-engine-1.7.0-1.el6.x86_64.rpm'
-  #docker_package_name = 'docker-io'
+  installer = 'docker-engine-1.7.1-1.el6.x86_64.rpm'
 elsif %w{rhel}.include?(node['platform_family'])
-  installer = 'docker-engine-1.7.0-1.el7.centos.x86_64.rpm'
-  #docker_package_name = 'docker'
+  if node[:'docker'][:'install_latest']
+    installer = 'docker-engine-1.8.1-1.el7.centos.x86_64.rpm'
+  else
+    installer = 'docker-engine-1.7.1-1.el7.centos.x86_64.rpm'
+  end
 end
 
 package ['device-mapper', 'device-mapper-event-libs'] do

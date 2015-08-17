@@ -1,3 +1,5 @@
+default['docker']['install_latest'] = true
+
 # default will be logging on /var/lib/docker
 default['docker']['logfile'] = nil
 
