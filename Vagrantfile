@@ -8,13 +8,19 @@ VAGRANT_COMMAND = ARGV[0]
 
 VAGRANTFILE_API_VERSION = "2" if not defined? VAGRANTFILE_API_VERSION
 
+DOCKER_DISK_SIZE = 100
+VM_RAM_SIZE = 4096
+VM_CPU_CORE = 2
+VG_BOX_NAME = "CentOS7"
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+  #ensure VirtablBox provider as 1st serve.
   config.vm.provider "virtualbox"
   config.vm.provider "parallels"
   config.vm.provider "vmware_fusion"
 
-  config.vm.box = "CentOS7"
+  config.vm.box = "#{VG_BOX_NAME}"
   if Vagrant.has_plugin?("vagrant-cachier")
     	# Configure cached packages to be shared between instances of the same base box.
     	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
@@ -45,14 +51,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provider "virtualbox" do |vb|
-    vb.customize ["modifyvm", :id, "--memory", "4096"]
-    vb.customize ["modifyvm", :id, "--cpus", "2"]
+    vb.customize ["modifyvm", :id, "--memory", "#{VM_RAM_SIZE}"]
+    vb.customize ["modifyvm", :id, "--cpus", "#{VM_CPU_CORE}"]
 
     if @status == 0 # no existing file and no already backuped file.
       if VAGRANT_COMMAND == "up"
         puts "create new docker content disk file"
       end
-      vb.customize ['createhd', '--filename', file_path, '--size', 50 * 1024]
+      vb.customize ['createhd', '--filename', file_path, '--size', DOCKER_DISK_SIZE * 1024]
       vb.customize ['storageattach', :id, '--storagectl', 'SATA', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', file_path]
     elsif @status == 1 #restore from backup path
       if VAGRANT_COMMAND == "up"
@@ -103,7 +109,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     chef.json = {
       "docker" => {
-        'install_latest' => true,
         'auto_start' => false,
         'group_members' => ['vagrant'],
         'logfile' => '/docker_log/docker.log',

@@ -1,25 +1,34 @@
 if %w{rhel}.include?(node['platform_family']) and 7 > node['platform_version'].to_i
-  installer = 'docker-engine-1.7.1-1.el6.x86_64.rpm'
+  use_bundle_installer = true
+  installer = 'docker-io-1.7.1-2.el6.x86_64.rpm'
 elsif %w{rhel}.include?(node['platform_family'])
-  if node[:'docker'][:'install_latest']
-    installer = 'docker-engine-1.8.1-1.el7.centos.x86_64.rpm'
-  else
-    installer = 'docker-engine-1.7.1-1.el7.centos.x86_64.rpm'
-  end
+  use_bundle_installer = false
 end
 
 package ['device-mapper', 'device-mapper-event-libs'] do
   action :upgrade
 end
 
-cookbook_file "#{Chef::Config[:file_cache_path]}/#{installer}" do
-  source installer
-  action :create_if_missing
-end
-
-yum_package "install-docker" do
-  source "#{Chef::Config[:file_cache_path]}/#{installer}"
-  action [:install]
+if use_bundle_installer
+  cookbook_file "#{Chef::Config[:file_cache_path]}/#{installer}" do
+    source installer
+    action :create_if_missing
+  end
+  yum_package "install-docker" do
+    source "#{Chef::Config[:file_cache_path]}/#{installer}"
+    action [:install]
+  end
+else
+  template '/etc/yum.repos.d/docker.repo' do
+    source 'docker.repo.erb'
+    owner 'root'
+    group 'root'
+    mode 00547
+  end
+  yum_package "docker-engine" do
+    flush_cache [ :before ]
+    action [:install]
+  end
 end
 
 template '/etc/sysconfig/docker' do
@@ -60,4 +69,9 @@ end
 bash 'add-firewall-rule' do
 	code 'iptables -I INPUT 4 -i docker0 -j ACCEPT'
 	only_if 'iptables -S INPUT | grep "docker0 -j ACCEPT"' and %w{rhel}.include?(node['platform_family']) and 7 > node['platform_version'].to_i
+end
+
+bash 'add-firewall-rule for CentOS 7' do
+  code 'firewall-cmd --permanent --zone=trusted --change-interface=docker0 && firewall-cmd --permanent --zone=trusted --add-port=4243/tcp'
+  only_if 'firewall-cmd --state | grep "^running$"' and %w{rhel}.include?(node['platform_family']) and 7 <= node['platform_version'].to_i
 end
