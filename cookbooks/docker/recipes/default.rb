@@ -72,6 +72,6 @@ bash 'add-firewall-rule' do
 end
 
 bash 'add-firewall-rule for CentOS 7' do
-  code 'firewall-cmd --permanent --zone=trusted --change-interface=docker0 && firewall-cmd --permanent --zone=trusted --add-port=4243/tcp'
+  code 'firewall-cmd --permanent --zone=trusted --add-interface=docker0 && firewall-cmd --permanent --zone=trusted --add-port=4243/tcp && firewall-cmd --reload'
   only_if 'firewall-cmd --state | grep "^running$"' and %w{rhel}.include?(node['platform_family']) and 7 <= node['platform_version'].to_i
 end
