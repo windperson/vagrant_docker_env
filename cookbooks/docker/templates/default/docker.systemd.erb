@@ -1,0 +1,25 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target docker.socket
+Requires=docker.socket
+
+[Service]
+Type=notify
+EnvironmentFile=-/etc/sysconfig/docker
+EnvironmentFile=-/etc/sysconfig/docker-storage
+EnvironmentFile=-/etc/sysconfig/docker-network
+ExecStart=
+ExecStart=/usr/bin/docker daemon -H fd:// $DOCKER_OPTS \
+     $other_args \
+     $DOCKER_STORAGE_OPTIONS \
+     $DOCKER_NETWORK_OPTIONS \
+     $BLOCK_REGISTRY \
+     $INSECURE_REGISTRY
+MountFlags=slave
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+
+[Install]
+WantedBy=multi-user.target

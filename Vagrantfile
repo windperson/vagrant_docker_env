@@ -97,7 +97,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.add_recipe "firewall"
     chef.add_recipe "htop"
     chef.add_recipe "btrfs"
-    chef.add_recipe "docker"
     if @status == 0
       chef.add_recipe "prepare_disk::new_disk"
       chef.add_recipe "prepare_disk::mount"
@@ -105,14 +104,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       chef.add_recipe "prepare_disk::restore_disk"
       chef.add_recipe "prepare_disk::mount"
     end
+    chef.add_recipe "docker"
     chef.add_recipe "docker::compose"
 
     chef.json = {
       "docker" => {
-        'auto_start' => false,
         'group_members' => ['vagrant'],
         'logfile' => '/docker_log/docker.log',
-        'options' => '-s btrfs'
+        'options' => '-s btrfs --dns 8.8.8.8 --dns 8.8.4.4 --host=tcp://0.0.0.0:2375 --host=unix:///var/run/docker.sock'
       },
       "prepare_disk" => {
         'physic_dev_path' => '/dev/sdb',
@@ -123,8 +122,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     }
   end
 
-  config.vm.provision "relink-config", type: "chef_solo", run: "always" do |chef|
-    chef.add_recipe "docker::start_host"
-  end
+  # config.vm.provision "relink-config", type: "chef_solo", run: "always" do |chef|
+  #   chef.add_recipe "docker::start_host"
+  # end
 
 end

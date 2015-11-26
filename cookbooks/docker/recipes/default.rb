@@ -1,4 +1,6 @@
-if %w{rhel}.include?(node['platform_family']) and 7 > node['platform_version'].to_i
+IsCentOS7orAbove = %w{rhel}.include?(node['platform_family']) and 7 >= node['platform_version'].to_i
+
+if not IsCentOS7orAbove
   use_bundle_installer = true
   installer = 'docker-io-1.7.1-2.el6.x86_64.rpm'
 elsif %w{rhel}.include?(node['platform_family'])
@@ -31,6 +33,14 @@ else
   end
 end
 
+template "#{node[:docker][:centos7_systemd_config]}"  do
+  source 'docker.systemd.erb'
+  owner 'root'
+  group 'root'
+  mode 00547
+  only_if { IsCentOS7orAbove }
+end
+
 template '/etc/sysconfig/docker' do
 	source 'docker.erb'
 	owner 'root'
@@ -42,13 +52,22 @@ template '/etc/sysconfig/docker' do
 		})
 end
 
+bash 'systemd-reload-config' do
+  code "systemctl daemon-reload"
+	only_if { IsCentOS7orAbove }
+end
+
+service 'docker' do
+    action [:reload]
+end
+
 service 'docker' do
     action [:disable, :stop]
     not_if {node[:docker][:auto_start]}
 end
 
 service 'docker' do
-    action [:enable, :start]
+    action [:enable, :stop, :restart]
     only_if {node[:docker][:auto_start]}
 end
 
@@ -73,5 +92,5 @@ end
 
 bash 'add-firewall-rule for CentOS 7' do
   code 'firewall-cmd --permanent --zone=trusted --add-interface=docker0 && firewall-cmd --permanent --zone=trusted --add-port=4243/tcp && firewall-cmd --reload'
-  only_if 'firewall-cmd --state | grep "^running$"' and %w{rhel}.include?(node['platform_family']) and 7 <= node['platform_version'].to_i
+  only_if 'firewall-cmd --state | grep "^running$"' and IsCentOS7orAbove
 end

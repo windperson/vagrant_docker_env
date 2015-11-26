@@ -7,3 +7,5 @@ default['docker']['container_logrotate'] = true
 default['docker']['group_members'] = nil
 
 default['docker']['auto_start'] = true
+
+default['docker']['centos7_systemd_config'] = '/usr/lib/systemd/system/docker.service'
