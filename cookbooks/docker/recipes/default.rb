@@ -34,7 +34,7 @@ else
 end
 
 template "#{node[:docker][:centos7_systemd_config]}"  do
-  source 'docker.systemd.erb'
+  source 'docker.conf.erb'
   owner 'root'
   group 'root'
   mode 00547
@@ -47,7 +47,7 @@ template '/etc/sysconfig/docker' do
 	group 'root'
 	mode 00547
 	variables({
-		:DockerOther_args => node[:docker][:options],
+		:DockerOption_args => node[:docker][:options],
     :DockerLogfile => node[:docker][:logfile]
 		})
 end

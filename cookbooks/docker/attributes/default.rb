@@ -8,4 +8,4 @@ default['docker']['group_members'] = nil
 
 default['docker']['auto_start'] = true
 
-default['docker']['centos7_systemd_config'] = '/usr/lib/systemd/system/docker.service'
+default['docker']['centos7_systemd_config'] = '/etc/systemd/system/docker.service.d'

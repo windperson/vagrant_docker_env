@@ -9,8 +9,8 @@ VAGRANT_COMMAND = ARGV[0]
 VAGRANTFILE_API_VERSION = "2" if not defined? VAGRANTFILE_API_VERSION
 
 DOCKER_DISK_SIZE = 100
-VM_RAM_SIZE = 4096
-VM_CPU_CORE = 2
+VM_RAM_SIZE = 1024
+VM_CPU_CORE = 1
 VG_BOX_NAME = "CentOS7"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -111,7 +111,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       "docker" => {
         'group_members' => ['vagrant'],
         'logfile' => '/docker_log/docker.log',
-        'options' => '-s btrfs --dns 8.8.8.8 --dns 8.8.4.4 --host=tcp://0.0.0.0:2375 --host=unix:///var/run/docker.sock'
+        'options' => '-s btrfs'
       },
       "prepare_disk" => {
         'physic_dev_path' => '/dev/sdb',
@@ -121,9 +121,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       }
     }
   end
-
-  # config.vm.provision "relink-config", type: "chef_solo", run: "always" do |chef|
-  #   chef.add_recipe "docker::start_host"
-  # end
 
 end
