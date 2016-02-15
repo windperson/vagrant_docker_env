@@ -38,7 +38,7 @@ directory "#{node[:docker][:centos7_systemd_config]}" do
   group 'root'
   mode '0755'
   action :create
-
+  only_if { IsCentOS7orAbove }
 end
 
 template "#{node[:docker][:centos7_systemd_config]}/docker.conf"  do
