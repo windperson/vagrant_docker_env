@@ -110,8 +110,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.json = {
       "docker" => {
         'group_members' => ['vagrant'],
-        'logfile' => '/docker_log/docker.log',
-        'options' => '-s btrfs'
+        'options' => '-s btrfs --dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'
       },
       "prepare_disk" => {
         'physic_dev_path' => '/dev/sdb',

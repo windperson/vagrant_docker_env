@@ -33,7 +33,15 @@ else
   end
 end
 
-template "#{node[:docker][:centos7_systemd_config]}"  do
+directory "#{node[:docker][:centos7_systemd_config]}" do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+
+end
+
+template "#{node[:docker][:centos7_systemd_config]}/docker.conf"  do
   source 'docker.conf.erb'
   owner 'root'
   group 'root'
