@@ -26,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
     		config.cache.scope = :box
   end
-  config.ssh.insert_key = false
+  # config.ssh.insert_key = false
   config.hostmanager.enabled = true
   config.vm.hostname = 'docker-host'
   config.vm.define "docker-host"
@@ -67,9 +67,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.customize ['storageattach', :id, '--storagectl', 'SATA', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', file_path]
     end
   end
-
-  config.vm.synced_folder "./log/docker", "/docker_log", create: true
-  config.vm.synced_folder "./proj" , "/proj", mount_options: ["dmode=777,fmode=777"]
 
   config.trigger.before :destroy do
     shutdown = nil
