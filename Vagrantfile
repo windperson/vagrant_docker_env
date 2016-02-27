@@ -24,10 +24,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   if Vagrant.has_plugin?("vagrant-cachier")
     	# Configure cached packages to be shared between instances of the same base box.
     	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
-    		config.cache.scope = :box
+      config.cache.scope = :box
+      if RUBY_PLATFORM =~ /darwin/
+        config.cache.synced_folder_opts = {
+          type: :nfs,
+          # The nolock option can be useful for an NFSv3 client that wants to avoid the
+          # NLM sideband protocol. Without this option, apt-get might hang if it tries
+          # to lock files needed for /var/cache/* operations. All of this can be avoided
+          # by using NFSv4 everywhere. Please note that the tcp option is not the default.
+          mount_options: ['rw', 'vers=3', 'tcp', 'nolock']
+        }
+      end
   end
   # config.ssh.insert_key = false
-  config.hostmanager.enabled = true
   config.vm.hostname = 'docker-host'
   config.vm.define "docker-host"
   config.vm.network :private_network, :ip => '192.168.201.101'
@@ -68,6 +77,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  if RUBY_PLATFORM =~ /darwin/
+    config.vm.synced_folder ".", "/vagrant", type: "nfs"
+  end
+
   config.trigger.before :destroy do
     shutdown = nil
     until ["Y", "y", "N", "n"].include?(shutdown)
@@ -91,6 +104,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.omnibus.chef_version = :latest
 
   config.vm.provision "chef_solo" do |chef|
+    if RUBY_PLATFORM =~ /darwin/
+      chef.synced_folder_type = "nfs"
+    end
     chef.add_recipe "firewall"
     chef.add_recipe "htop"
     chef.add_recipe "btrfs"
