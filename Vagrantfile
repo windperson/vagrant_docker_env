@@ -25,7 +25,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     	# Configure cached packages to be shared between instances of the same base box.
     	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
       config.cache.scope = :box
-      if RUBY_PLATFORM =~ /darwin/
+      if RUBY_PLATFORM =~ /darwin/ or (Vagrant::Util::Platform.windows? and defined?(VAGRANT_USE_NFS) and VAGRANT_USE_NFS)
         config.cache.synced_folder_opts = {
           type: :nfs,
           # The nolock option can be useful for an NFSv3 client that wants to avoid the
@@ -77,7 +77,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  if RUBY_PLATFORM =~ /darwin/
+  if RUBY_PLATFORM =~ /darwin/ or (Vagrant::Util::Platform.windows? and defined?(VAGRANT_USE_NFS) and VAGRANT_USE_NFS)
     config.vm.synced_folder ".", "/vagrant", type: "nfs"
   end
 
