@@ -1,5 +1,2 @@
 .vagrant/
-docker_data/
-docker_backup/
-proj
-log
+disk_data/*.vdi

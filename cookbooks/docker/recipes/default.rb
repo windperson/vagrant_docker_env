@@ -27,10 +27,19 @@ else
     group 'root'
     mode 00547
   end
+
+  package 'deltarpm' do
+  	action :install
+  end
+
   yum_package "docker-engine" do
     flush_cache [ :before ]
     action [:install]
   end
+end
+
+service 'docker' do
+    action [:stop]
 end
 
 directory "#{node[:docker][:centos7_systemd_config]}" do
