@@ -74,6 +74,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     chef.add_recipe "docker"
     chef.add_recipe "docker::compose"
+    chef.add_recipe "docker::machine"
 
     chef.json = {
       "docker" => {
