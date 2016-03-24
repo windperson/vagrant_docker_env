@@ -25,7 +25,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
     	config.cache.scope = :box
   end
-  
+  config.ssh.insert_key = false
   config.hostmanager.enabled = true
   config.vm.hostname = 'dockerhost'
   config.vm.define "dockerhost"
