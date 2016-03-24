@@ -23,15 +23,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   if Vagrant.has_plugin?("vagrant-cachier")
     	# Configure cached packages to be shared between instances of the same base box.
     	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
-    	config.cache.scope = :box
+    	config.cache.scope = :machine
   end
-  config.ssh.insert_key = false
+  #config.ssh.insert_key = false
   config.hostmanager.enabled = true
   config.vm.hostname = 'dockerhost'
   config.vm.define "dockerhost"
   config.vm.network :private_network, :ip => '192.168.201.101'
   file_disk = "docker_data.vdi"
-  attach_dir = "./disk_data"
+  attach_dir = "disk_data"
   file_path = Pathname.new(attach_dir).join(file_disk)
   file_disk_size = DOCKER_DISK_SIZE * 1024 #storage unit: MB
   FLAG_FILE = ".vagrant/.created"
@@ -57,7 +57,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.trigger.after :destroy do
-    File.delete(FLAG_FILE)
+    if File.exist?(FLAG_FILE)
+      File.delete(FLAG_FILE)
+    end
   end
 
   config.vm.provider "virtualbox" do |vb|
