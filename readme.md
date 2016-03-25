@@ -18,7 +18,10 @@ and 4 require vagrant plugins:
 
 The successfully initiated VM store its docker installation folder /var/lib/docker in separated disk file *disk_data/docker_data.vdi* , so you can backup & restore current docker image, containers and volume data even if VM deleted then recreated.
 
+Host mapping of this Vagrant project folder is /home/vagrant/sync in VM.
+
 You can tweak:
 
--	VM CPU core(s), RAM size, the separated docker data disk file size from Vagrantfile line 11~15.
+-	The separated docker data disk file sizeVM CPU core(s), RAM size in Vagrantfile line 11~13.
+-	VM private IP address in Vagrantfile line 15
 -	Docker Engine startup parameter in Vagrantfile line 16 for enable insecure registry or private repos as mentioned in [offical document](https://docs.docker.com/registry/insecure/).
