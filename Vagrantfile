@@ -16,6 +16,7 @@ VM_IP = '192.168.103.101'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+  #force use virtualbox provider
   config.vm.provider "virtualbox"
   config.vm.provider "parallels"
   config.vm.provider "vmware_fusion"
@@ -29,7 +30,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   attach_dir = "disk_data"
   file_path = Pathname.new(attach_dir).join(file_disk)
   file_disk_size = DOCKER_DISK_SIZE * 1024 #storage unit: MB
-  FLAG_FILE = ".vagrant/.created"
+  FLAG_FILE = Pathname.new(".vagrant").join(".created")
 
   def setup_and_enable_vg_persistent(config, file_path, file_disk_size)
     config.persistent_storage.enabled = true
@@ -42,6 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   if VAGRANT_COMMAND == "up" and not File.exist?(FLAG_FILE)
     setup_and_enable_vg_persistent(config, file_path, file_disk_size)
+    Dir.mkdir(".vagrant") unless File.exists?(".vagrant")
     File.open(FLAG_FILE, "w+") do |f|
       f.write("docker data disk of #{config.vm.hostname} has been created at #{Time.now.strftime("%Y/%m/%d %H:%M:%S")}")
     end
