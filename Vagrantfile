@@ -12,6 +12,7 @@ DOCKER_DISK_SIZE = 100
 VM_RAM_SIZE = 1024
 VM_CPU_CORE = 1
 VG_BOX_NAME = "CentOS7"
+VM_IP = '192.168.103.101'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -20,16 +21,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "vmware_fusion"
 
   config.vm.box = "#{VG_BOX_NAME}"
-  if Vagrant.has_plugin?("vagrant-cachier")
-    	# Configure cached packages to be shared between instances of the same base box.
-    	# More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
-    	config.cache.scope = :machine
-  end
-  #config.ssh.insert_key = false
-  config.hostmanager.enabled = true
+  config.ssh.insert_key = false
   config.vm.hostname = 'dockerhost'
   config.vm.define "dockerhost"
-  config.vm.network :private_network, :ip => '192.168.201.101'
+  config.vm.network :private_network, :ip => "#{VM_IP}"
   file_disk = "docker_data.vdi"
   attach_dir = "disk_data"
   file_path = Pathname.new(attach_dir).join(file_disk)
