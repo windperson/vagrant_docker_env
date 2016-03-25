@@ -11,8 +11,9 @@ VAGRANTFILE_API_VERSION = "2" if not defined? VAGRANTFILE_API_VERSION
 DOCKER_DISK_SIZE = 100
 VM_RAM_SIZE = 1024
 VM_CPU_CORE = 1
-VG_BOX_NAME = "CentOS7"
+VG_BOX_NAME = "centos/7"
 VM_IP = '192.168.103.101'
+DOCKER_ENGINE_DAEMON_CONFIG = '--dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -21,8 +22,28 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "parallels"
   config.vm.provider "vmware_fusion"
 
+  if not Vagrant.has_plugin?("vagrant-omnibus") or
+     not Vagrant.has_plugin?("vagrant-persistent-storage") or
+     not Vagrant.has_plugin?("vagrant-triggers") or
+     not Vagrant.has_plugin?("vagrant-vbguest")
+    puts ""
+    puts "please install required plugins!!!"
+    puts ""
+    exit
+  end
+
+  #auto update virtualbox addition for enabling share folder
+  config.vbguest.no_remote = true
+  config.vbguest.installer_arguments = %w{--nox11}
+  config.vbguest.auto_reboot = true
+
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
+
   config.vm.box = "#{VG_BOX_NAME}"
-  config.ssh.insert_key = false
+  #config.ssh.insert_key = false
+
   config.vm.hostname = 'dockerhost'
   config.vm.define "dockerhost"
   config.vm.network :private_network, :ip => "#{VM_IP}"
@@ -78,7 +99,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.json = {
       "docker" => {
         'group_members' => ['vagrant'],
-        'options' => '-s btrfs --dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'
+        'options' => "-s btrfs #{DOCKER_ENGINE_DAEMON_CONFIG}"
       }
     }
   end
