@@ -16,9 +16,9 @@ and 4 require vagrant plugins:
 -	vagrant-triggers: https://github.com/emyl/vagrant-triggers
 -	vagrant-persistent-storage: https://github.com/kusnier/vagrant-persistent-storage
 
-The successfully initiated VM store its docker installation folder /var/lib/docker in separated disk file *disk_data/docker_data.vdi* , so you can backup & restore current docker image, containers and volume data even if VM deleted then recreated.
+The successfully initiated VM store its docker installation folder /var/lib/docker in separated disk file **disk_data/docker_data.vdi** , so you can backup & restore current docker image, containers and volume data even if VM deleted then recreated.
 
-Host mapping of this Vagrant project folder is /home/vagrant/sync in VM.
+It use [official CentOS 7 vagrant box](https://vagrantcloud.com/centos/boxes/7) to run, and host mapping inside VM of this Vagrant project folder is **/vagrant**, the same as default vagrant configuration.
 
 You can tweak:
 

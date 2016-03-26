@@ -42,6 +42,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.box = "#{VG_BOX_NAME}"
+
+  if config.vm.box.to_s == "centos/7"
+    #turn off default rsync sharing in offical CentOS 7 vagrant box
+    config.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
+    config.vm.synced_folder '.', '/vagrant', disabled: false
+  end
   #config.ssh.insert_key = false
 
   config.vm.hostname = 'dockerhost'
