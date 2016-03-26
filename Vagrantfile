@@ -48,7 +48,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
     config.vm.synced_folder '.', '/vagrant', disabled: false
   end
-  #config.ssh.insert_key = false
+  config.ssh.insert_key = false
 
   config.vm.hostname = 'dockerhost'
   config.vm.define "dockerhost"
@@ -95,6 +95,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.omnibus.chef_version = :latest
 
   config.vm.provision "chef_solo" do |chef|
+
+    if config.vm.box.to_s == "centos/7"
+      chef.add_recipe "centos7nic-patch"
+    end
+
     chef.add_recipe "firewall"
     chef.add_recipe "htop"
 
