@@ -37,10 +37,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vbguest.installer_arguments = %w{--nox11}
   config.vbguest.auto_reboot = true
 
-  if Vagrant.has_plugin?("vagrant-cachier")
-    config.cache.scope = :box
-  end
-
   config.vm.box = "#{VG_BOX_NAME}"
 
   if config.vm.box.to_s == "centos/7"
@@ -48,10 +44,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
     config.vm.synced_folder '.', '/vagrant', disabled: false
   end
-  config.ssh.insert_key = false
-
-  config.vm.hostname = 'dockerhost'
-  config.vm.define "dockerhost"
+  #config.ssh.insert_key = false
+  #config.vm.hostname = 'dockerhost'
+  #config.vm.define "dockerhost"
   config.vm.network :private_network, :ip => "#{VM_IP}"
   file_disk = "docker_data.vdi"
   attach_dir = "disk_data"
@@ -95,13 +90,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.omnibus.chef_version = :latest
 
   config.vm.provision "chef_solo" do |chef|
-
     if config.vm.box.to_s == "centos/7"
       chef.add_recipe "centos7nic-patch"
+      # firewalld built-in in CentOS 7 has a issue with docker:
+      # https://github.com/docker/docker/issues/16137
+      chef.add_recipe "firewall"
     end
-
-    chef.add_recipe "firewall"
-    chef.add_recipe "htop"
 
     chef.add_recipe "docker"
     chef.add_recipe "docker::compose"
