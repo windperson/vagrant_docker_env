@@ -12,7 +12,7 @@ DOCKER_DISK_SIZE = 100
 VM_RAM_SIZE = 1024
 VM_CPU_CORE = 1
 VG_BOX_NAME = "centos/7"
-VM_IP = '192.168.103.101'
+VM_IP = '192.168.100.101'
 DOCKER_ENGINE_DAEMON_CONFIG = '--dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
