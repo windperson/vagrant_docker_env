@@ -16,12 +16,13 @@ and 4 require vagrant plugins:
 -	vagrant-triggers: https://github.com/emyl/vagrant-triggers
 -	vagrant-persistent-storage: https://github.com/kusnier/vagrant-persistent-storage
 
-The successfully initiated VM store its docker installation folder /var/lib/docker in separated disk file **disk_data/docker_data.vdi** , so you can backup & restore current docker image, containers and volume data even if VM deleted then recreated.
+The successfully initiated VM store its docker installation folder ***/var/lib/docker*** in separated disk file **disk_data/docker_data.vdi** , so you can backup & restore current docker image, containers and volume data even if VM deleted then recreated.
 
 It use [official CentOS 7 vagrant box](https://vagrantcloud.com/centos/boxes/7) to "*power on*", which is made from [those script](https://github.com/CentOS/sig-cloud-instance-build/tree/master/vagrant), and host mapping inside VM of this Vagrant project folder is **/vagrant**, the same as default vagrant configuration.
 
 You can tweak:
 
--	The separated docker data disk file sizeVM CPU core(s), RAM size in Vagrantfile line 11~13.
--	VM private IP address in Vagrantfile line 15
+-	The separated docker data disk file size, VM CPU core(s), RAM size in Vagrantfile line 11~13.
+-	VM private IP address in Vagrantfile line 15.
+  (Default I left it as "*dhcp*" for better various environment compatibility, you can use [vagrant-address](https://github.com/mkuzmin/vagrant-address) plugin to find started VM private network IP address.)
 -	Docker Engine startup parameter in Vagrantfile line 16 for enable insecure registry or private repos as mentioned in [offical document](https://docs.docker.com/registry/insecure/).
