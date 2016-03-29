@@ -12,7 +12,7 @@ DOCKER_DISK_SIZE = 100
 VM_RAM_SIZE = 1024
 VM_CPU_CORE = 1
 VG_BOX_NAME = "centos/7"
-VM_IP = '192.168.100.101'
+VM_IP = 'dhcp'
 DOCKER_ENGINE_DAEMON_CONFIG = '--dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -47,7 +47,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #config.ssh.insert_key = false
   #config.vm.hostname = 'dockerhost'
   #config.vm.define "dockerhost"
-  config.vm.network :private_network, :ip => "#{VM_IP}"
+  if "#{VM_IP}" != "dhcp"
+    config.vm.network "private_network", :ip => "#{VM_IP}"
+  else
+    config.vm.network "private_network", type: "dhcp"
+  end
   file_disk = "docker_data.vdi"
   attach_dir = "disk_data"
   file_path = Pathname.new(attach_dir).join(file_disk)
