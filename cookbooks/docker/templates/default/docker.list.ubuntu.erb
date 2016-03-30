@@ -1,0 +1,7 @@
+<% if 15 <= @os_ver -%>
+deb https://apt.dockerproject.org/repo ubuntu-wily main
+<% elsif 14 <= @os_ver and 15 > @os_ver -%>
+deb https://apt.dockerproject.org/repo ubuntu-trusty main
+<% elsif 12 <= @os_ver and 13 > @os_ver -%>
+deb https://apt.dockerproject.org/repo ubuntu-precise main
+<% end -%>

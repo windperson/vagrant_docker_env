@@ -1,14 +1,31 @@
-IsCentOS7orAbove = %w{rhel}.include?(node['platform_family']) and 7 >= node['platform_version'].to_i
+OS_name=node['platform_family']
+OS_ver=node['platform_version'].to_f
+log 'print OS info' do
+  message "OS=#{OS_name} ver=#{OS_ver}"
+  level :info
+end
 
-if not IsCentOS7orAbove
+IsCentOS7orAbove = ( %w{rhel}.include?(OS_name) and 7 <= OS_ver )
+IsCentOS6 = ( %w{rhel}.include?(OS_name) and 7 > OS_ver )
+IsUbuntu = ( %w{'ubuntu'}.include?(OS_ver) )
+
+use_bundle_installer = false
+if IsCentOS6
   use_bundle_installer = true
   installer = 'docker-io-1.7.1-2.el6.x86_64.rpm'
-elsif %w{rhel}.include?(node['platform_family'])
+  log 'using bundle installer' do
+    level :info
+  end
+elsif IsCentOS7orAbove or IsUbuntu
   use_bundle_installer = false
+  log 'install from official source' do
+    level :info
+  end
 end
 
 package ['device-mapper', 'device-mapper-event-libs'] do
   action :upgrade
+  only_if { IsCentOS6 or IsCentOS7orAbove }
 end
 
 if use_bundle_installer
@@ -20,9 +37,9 @@ if use_bundle_installer
     source "#{Chef::Config[:file_cache_path]}/#{installer}"
     action [:install]
   end
-else
+elsif IsCentOS7orAbove
   template '/etc/yum.repos.d/docker.repo' do
-    source 'docker.repo.erb'
+    source 'docker.repo.centos.erb'
     owner 'root'
     group 'root'
     mode 00547
@@ -36,6 +53,39 @@ else
     flush_cache [ :before ]
     action [:install]
   end
+elsif IsUbuntu
+  package ['apt-transport-https', 'ca-certificates'] do
+    action :install
+  end
+
+  bash 'add-GPG-key-for-Ubuntu' do
+    code 'apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D'
+  end
+
+  template '/etc/apt/sources.list.d/docker.list' do
+    source 'docker.list.ubuntu.erb'
+    owner 'root'
+    group 'root'
+    mode 00744
+    variables({
+      :os_ver => node['platform_version'].to_f
+      })
+    action :create
+    only_if IsUbuntu
+  end
+
+  bash 'update-apt-repo' do
+    code 'apt-get update && apt-get purge lxc-docker'
+  end
+
+  bash 'install:linux-image-extra' do
+    code 'apt-get install linux-image-extra-$(uname -r)'
+  end
+
+  package "docker-engine" do
+    action [:install]
+  end
+
 end
 
 service 'docker' do
@@ -102,12 +152,14 @@ group 'docker' do
   not_if {node[:'docker'][:'group_members'] == nil}
 end
 
-bash 'add-firewall-rule' do
-	code 'iptables -I INPUT 4 -i docker0 -j ACCEPT'
-	only_if 'iptables -S INPUT | grep "docker0 -j ACCEPT"' and %w{rhel}.include?(node['platform_family']) and 7 > node['platform_version'].to_i
-end
+if IsCentOS7orAbove
+  bash 'add-firewall-rule' do
+	   code 'iptables -I INPUT 4 -i docker0 -j ACCEPT'
+	   only_if 'iptables -S INPUT | grep "docker0 -j ACCEPT"'
+  end
 
-bash 'add-firewall-rule for CentOS 7' do
-  code 'firewall-cmd --permanent --zone=trusted --add-interface=docker0 && firewall-cmd --permanent --zone=trusted --add-port=4243/tcp && firewall-cmd --reload'
-  only_if 'firewall-cmd --state | grep "^running$"' and IsCentOS7orAbove
+  bash 'add-firewall-rule for CentOS 7' do
+    code 'firewall-cmd --permanent --zone=trusted --add-interface=docker0 && firewall-cmd --permanent --zone=trusted --add-port=4243/tcp && firewall-cmd --reload'
+    only_if 'firewall-cmd --state | grep "^running$"'
+  end
 end
