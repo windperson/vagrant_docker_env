@@ -1,13 +1,14 @@
-OS_name=node['platform_family']
+OS_name=node['platform']
+OS_family=node['platform_family']
 OS_ver=node['platform_version'].to_f
 log 'print OS info' do
-  message "OS=#{OS_name} ver=#{OS_ver}"
+  message "OS=#{OS_name}, OS_family=#{OS_family} ver=#{OS_ver}"
   level :info
 end
 
-IsCentOS7orAbove = ( %w{rhel}.include?(OS_name) and 7 <= OS_ver )
-IsCentOS6 = ( %w{rhel}.include?(OS_name) and 7 > OS_ver )
-IsUbuntu = ( %w{'ubuntu'}.include?(OS_ver) )
+IsCentOS7orAbove = ( %w{rhel}.include?(OS_name) and %w{centos}.include?(OS_family) and 7 <= OS_ver )
+IsCentOS6 = ( %w{rhel}.include?(OS_name) and  %w{centos}.include?(OS_family) and 7 > OS_ver )
+IsUbuntu = ( %w{ubuntu}.include?(OS_name) and %w{debian}.include?(OS_family) )
 
 use_bundle_installer = false
 if IsCentOS6
@@ -59,7 +60,7 @@ elsif IsUbuntu
   end
 
   bash 'add-GPG-key-for-Ubuntu' do
-    code 'apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D'
+    code 'DEBIAN_FRONTEND=noninteractive apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D'
   end
 
   template '/etc/apt/sources.list.d/docker.list' do
@@ -71,15 +72,14 @@ elsif IsUbuntu
       :os_ver => node['platform_version'].to_f
       })
     action :create
-    only_if IsUbuntu
   end
 
   bash 'update-apt-repo' do
-    code 'apt-get update && apt-get purge lxc-docker'
+    code 'DEBIAN_FRONTEND=noninteractive apt-get update && apt-get purge -y lxc-docker && apt-get autoremove -y'
   end
 
   bash 'install:linux-image-extra' do
-    code 'apt-get install linux-image-extra-$(uname -r)'
+    code 'DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-extra-$(uname -r)'
   end
 
   package "docker-engine" do
@@ -117,7 +117,21 @@ template '/etc/sysconfig/docker' do
 		:DockerOption_args => node[:docker][:options],
     :DockerLogfile => node[:docker][:logfile]
 		})
+  only_if { IsCentOS7orAbove }
 end
+
+template '/etc/default/docker' do
+	source 'docker.erb'
+	owner 'root'
+	group 'root'
+	mode 00547
+	variables({
+		:DockerOption_args => node[:docker][:options],
+    :DockerLogfile => node[:docker][:logfile]
+		})
+  only_if { IsUbuntu and OS_ver < 15 }
+end
+
 
 bash 'systemd-reload-config' do
   code "systemctl daemon-reload"

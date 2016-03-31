@@ -8,10 +8,13 @@ VAGRANT_COMMAND = ARGV[0]
 
 VAGRANTFILE_API_VERSION = "2" if not defined? VAGRANTFILE_API_VERSION
 
-DOCKER_DISK_SIZE = 100
+DOCKER_DISK_NAME = "docker_data.vdi"
+DOCKER_DISK_SIZE = 100  # unit: GB
+DOCKER_DISK_FS = 'ext4'
+DOCKER_DISK_USE_LVM = false
 VM_RAM_SIZE = 1024
 VM_CPU_CORE = 1
-VG_BOX_NAME = "centos/7"
+VG_BOX_NAME = "ubuntu/trusty64"
 VM_IP = 'dhcp'
 DOCKER_ENGINE_DAEMON_CONFIG = '--dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'
 
@@ -52,10 +55,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   else
     config.vm.network "private_network", type: "dhcp"
   end
-  file_disk = "docker_data.vdi"
+  file_disk = "#{DOCKER_DISK_NAME}"
   attach_dir = "disk_data"
   file_path = Pathname.new(attach_dir).join(file_disk)
-  file_disk_size = DOCKER_DISK_SIZE * 1024 #storage unit: MB
+  file_disk_size = DOCKER_DISK_SIZE * 1024
   FLAG_FILE = Pathname.new(".vagrant").join(".created")
 
   def setup_and_enable_vg_persistent(config, file_path, file_disk_size)
@@ -63,8 +66,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.persistent_storage.location = "#{file_path}"
     config.persistent_storage.size = file_disk_size
     config.persistent_storage.mountname = 'dockerdata'
-    config.persistent_storage.filesystem = 'btrfs'
+    config.persistent_storage.filesystem = "#{DOCKER_DISK_FS}"
     config.persistent_storage.mountpoint = '/var/lib/docker'
+    config.persistent_storage.use_lvm = DOCKER_DISK_USE_LVM
   end
 
   if VAGRANT_COMMAND == "up" and not File.exist?(FLAG_FILE)
@@ -108,7 +112,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.json = {
       "docker" => {
         'group_members' => ['vagrant'],
-        'options' => "-s btrfs #{DOCKER_ENGINE_DAEMON_CONFIG}"
+        'options' => "#{DOCKER_ENGINE_DAEMON_CONFIG}"
       }
     }
   end
