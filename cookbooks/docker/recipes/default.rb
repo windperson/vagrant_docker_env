@@ -74,12 +74,15 @@ elsif IsUbuntu
     action :create
   end
 
-  bash 'update-apt-repo' do
-    code 'DEBIAN_FRONTEND=noninteractive apt-get update && apt-get purge -y lxc-docker && apt-get autoremove -y'
+  bash 'update-apt-repo-and-install-extra-stuff' do
+    code 'DEBIAN_FRONTEND=noninteractive apt-get update '\
+         '&& apt-get purge -y lxc-docker '\
+         '&& apt-get install -y linux-image-extra-$(uname -r) '\
+         '&& apt-get autoremove -y'
   end
 
   bash 'install:linux-image-extra' do
-    code 'DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-extra-$(uname -r)'
+    code 'DEBIAN_FRONTEND=noninteractive '
   end
 
   package "docker-engine" do
@@ -175,5 +178,21 @@ if IsCentOS7orAbove
   bash 'add-firewall-rule for CentOS 7' do
     code 'firewall-cmd --permanent --zone=trusted --add-interface=docker0 && firewall-cmd --permanent --zone=trusted --add-port=4243/tcp && firewall-cmd --reload'
     only_if 'firewall-cmd --state | grep "^running$"'
+  end
+end
+
+if IsUbuntu
+
+  template '/etc/default/ufw' do
+  	source 'ubuntu.ufw.erb'
+  	owner 'root'
+  	group 'root'
+  	mode 00644
+    only_if "which ufw"
+  end
+
+  bash 'reload-ubuntu-UFW' do
+    code 'ufw reload && ufw allow 2375/tcp && ufw allow 2376/tcp'
+    only_if "which ufw"
   end
 end
