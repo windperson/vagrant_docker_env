@@ -41,6 +41,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vbguest.auto_reboot = true
 
   config.vm.box = "#{VG_BOX_NAME}"
+  config.vm.box_check_update = false 
 
   if config.vm.box.to_s == "centos/7"
     #turn off default rsync sharing in offical CentOS 7 vagrant box
