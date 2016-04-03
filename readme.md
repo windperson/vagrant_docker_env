@@ -24,7 +24,7 @@ and 4 require vagrant plugins:
 
 It use [official CentOS 7 vagrant box](https://vagrantcloud.com/centos/boxes/7) (When specified vagrant box is **centos/7**)to "*power on*", which is made from [those script](https://github.com/CentOS/sig-cloud-instance-build/tree/master/vagrant), and host mapping inside VM of this Vagrant project folder is **/vagrant**, the same as default vagrant configuration.
 
-### Ubuntu 14.04 LTS
+### Ubuntu 14.04 LTS & Ubuntu 15.10
 
 It use [official Ubuntu Server 14.04 LTS (Trusty Tahr) vagrant box](https://vagrantcloud.com/ubuntu/boxes/trusty64) (When specified vagrant box is **ubuntu/trusty64**) or [official Ubuntu Server 15.10 Wily Werewolf (development) builds](https://vagrantcloud.com/ubuntu/boxes/wily64) (When specified vagrant box is **ubuntu/wily64**) to "*power on*", and host mapping inside VM of this Vagrant project folder is **/vagrant**, the same as default vagrant configuration.
 
