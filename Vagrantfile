@@ -14,7 +14,7 @@ DOCKER_DISK_FS = 'ext4'
 DOCKER_DISK_USE_LVM = false
 VM_RAM_SIZE = 1024
 VM_CPU_CORE = 1
-VG_BOX_NAME = "ubuntu/trusty64"
+VG_BOX_NAME = "ubuntu/wily64"
 VM_IP = 'dhcp'
 DOCKER_ENGINE_DAEMON_CONFIG = '--dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'
 
@@ -41,7 +41,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vbguest.auto_reboot = true
 
   config.vm.box = "#{VG_BOX_NAME}"
-  config.vm.box_check_update = false 
+  config.vm.box_check_update = false
 
   if config.vm.box.to_s == "centos/7"
     #turn off default rsync sharing in offical CentOS 7 vagrant box
