@@ -14,6 +14,8 @@ DOCKER_DISK_FS = 'btrfs'
 DOCKER_DISK_USE_LVM = true
 VM_RAM_SIZE = 1024
 VM_CPU_CORE = 1
+VM_NAME = "" #Name that will appear in privsion steps and VirtualBox GUI Window,left empty would be default.
+VM_HOSTNAME = "" #host name that will appaer when you ssh into it, will be convert to all lowcase..
 VG_BOX_NAME = "centos/7"
 VM_IP = 'dhcp'
 DOCKER_ENGINE_DAEMON_CONFIG = '-s btrfs --dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'
@@ -49,8 +51,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.synced_folder '.', '/vagrant', disabled: false
   end
   #config.ssh.insert_key = false
-  #config.vm.hostname = 'dockerhost'
-  #config.vm.define "dockerhost"
+  if not (VM_NAME.nil? || "#{VM_NAME}".empty?)
+    config.vm.define "#{VM_NAME}"
+  end
+  config.vm.hostname = "#{VM_HOSTNAME}" if not (VM_HOSTNAME.nil? || "#{VM_HOSTNAME}".empty?)
   if "#{VM_IP}" != "dhcp"
     config.vm.network "private_network", :ip => "#{VM_IP}"
   else
@@ -60,7 +64,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   attach_dir = "disk_data"
   file_path = Pathname.new(attach_dir).join(file_disk)
   file_disk_size = DOCKER_DISK_SIZE * 1024
-  FLAG_FILE = Pathname.new(".vagrant").join(".created")
+  FLAG_FILE = Pathname.new(".vagrant").join(".#{VM_NAME}created")
 
   def setup_and_enable_vg_persistent(config, file_path, file_disk_size)
     config.persistent_storage.enabled = true
@@ -92,6 +96,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider "virtualbox" do |vb|
     vb.gui = false
+    vb.name = "#{VM_NAME}" if not (VM_NAME.nil? || "#{VM_NAME}".empty?)
     vb.customize ["modifyvm", :id, "--memory", "#{VM_RAM_SIZE}"]
     vb.customize ["modifyvm", :id, "--cpus", "#{VM_CPU_CORE}"]
   end
