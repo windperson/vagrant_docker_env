@@ -10,15 +10,15 @@ VAGRANTFILE_API_VERSION = "2" if not defined? VAGRANTFILE_API_VERSION
 
 DOCKER_DISK_NAME = "docker_data.vdi"
 DOCKER_DISK_SIZE = 100  # unit: GB
-DOCKER_DISK_FS = 'ext4'
-DOCKER_DISK_USE_LVM = false
+DOCKER_DISK_FS = 'btrfs'
+DOCKER_DISK_USE_LVM = true
 VM_RAM_SIZE = 1024
 VM_CPU_CORE = 1
-VM_NAME = "" #Name that will appear in privsion steps and VirtualBox GUI Window,left empty would be default.
-VM_HOSTNAME = "" #host name that will appaer when you ssh into it, will be convert to all lowcase..
-VG_BOX_NAME = "ubuntu/wily64"
+VM_NAME = "dev" #Name that will appear in privsion steps and VirtualBox GUI Window,left empty would be default.
+VM_HOSTNAME = "dev-site" #host name that will appaer when you ssh into it, will be convert to all lowcase..
+VG_BOX_NAME = "centos/7"
 VM_IP = 'dhcp'
-DOCKER_ENGINE_DAEMON_CONFIG = '--dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock'
+DOCKER_ENGINE_DAEMON_CONFIG = '-s btrfs --dns 8.8.8.8 --dns 8.8.4.4 -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --insecure-registry 172.28.128.3:5001'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
