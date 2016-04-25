@@ -36,7 +36,7 @@ if use_bundle_installer
   end
   yum_package "install-docker" do
     source "#{Chef::Config[:file_cache_path]}/#{installer}"
-    action [:install]
+    action [:install, :upgrade]
   end
 elsif IsCentOS7orAbove
   template '/etc/yum.repos.d/docker.repo' do
@@ -47,12 +47,12 @@ elsif IsCentOS7orAbove
   end
 
   package 'deltarpm' do
-  	action :install
+  	action [:install, :upgrade]
   end
 
   yum_package "docker-engine" do
     flush_cache [ :before ]
-    action [:install]
+    action [:install, :upgrade]
   end
 elsif IsUbuntu
   package ['apt-transport-https', 'ca-certificates'] do
