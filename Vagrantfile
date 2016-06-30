@@ -37,6 +37,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     exit
   end
 
+  if Vagrant.has_plugin?("vagrant-cachier")
+    # Configure cached packages to be shared between instances of the same base box.
+    # More info on http://fgrehm.viewdocs.io/vagrant-cachier/usage
+    config.cache.scope = :box
+  end
+
   #auto update virtualbox addition for enabling share folder
   config.vbguest.no_remote = true
   config.vbguest.installer_arguments = %w{--nox11}
@@ -101,7 +107,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, "--cpus", "#{VM_CPU_CORE}"]
   end
 
-  config.omnibus.chef_version = :latest
+  config.omnibus.chef_version = "12.10.24"
 
   config.vm.provision "chef_solo" do |chef|
     if config.vm.box.to_s == "centos/7"
