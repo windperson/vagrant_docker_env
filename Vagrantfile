@@ -54,7 +54,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   if config.vm.box.to_s == "centos/7"
     #turn off default rsync sharing in offical CentOS 7 vagrant box
     config.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
-    config.vm.synced_folder '.', '/vagrant', disabled: false
+    config.vm.synced_folder '.', '/vagrant', disabled: false, type: "virtualbox" 
   end
   #config.ssh.insert_key = false
   if not (VM_NAME.nil? || "#{VM_NAME}".empty?)
