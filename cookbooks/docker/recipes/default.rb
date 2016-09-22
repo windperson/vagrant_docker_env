@@ -9,6 +9,7 @@ end
 IsCentOS7orAbove = ( %w{centos}.include?(OS_name) and %w{rhel}.include?(OS_family) and 7 <= OS_ver )
 IsCentOS6 = ( %w{centos}.include?(OS_name) and  %w{rhel}.include?(OS_family) and 7 > OS_ver )
 IsUbuntu = ( %w{ubuntu}.include?(OS_name) and %w{debian}.include?(OS_family) )
+IsUbuntuWithSystemd = ( %w{ubuntu}.include?(OS_name) and %w{debian}.include?(OS_family) and OS_ver >= 15 )
 
 use_bundle_installer = false
 if IsCentOS6
@@ -95,20 +96,30 @@ service 'docker' do
     action [:stop]
 end
 
-directory "#{node[:docker][:centos7_systemd_config]}" do
+directory "#{node[:docker][:systemd_config]}" do
   owner 'root'
   group 'root'
   mode '0755'
   action :create
-  only_if { IsCentOS7orAbove }
+  recursive true
+  only_if { (IsCentOS7orAbove or IsUbuntuWithSystemd) }
 end
 
-template "#{node[:docker][:centos7_systemd_config]}/docker.conf"  do
+template "#{node[:docker][:systemd_config]}/docker.conf"  do
   source 'docker.conf.erb'
   owner 'root'
   group 'root'
   mode 00547
-  only_if { IsCentOS7orAbove }
+  only_if { (IsCentOS7orAbove or IsUbuntuWithSystemd) }
+end
+
+directory "/etc/sysconfig/" do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+  recursive true
+  only_if { (IsCentOS7orAbove or IsUbuntuWithSystemd) }
 end
 
 template '/etc/sysconfig/docker' do
@@ -120,7 +131,7 @@ template '/etc/sysconfig/docker' do
 		:DockerOption_args => node[:docker][:options],
     :DockerLogfile => node[:docker][:logfile]
 		})
-  only_if { IsCentOS7orAbove }
+  only_if { (IsCentOS7orAbove or IsUbuntuWithSystemd) }
 end
 
 template '/etc/default/docker' do
@@ -138,7 +149,7 @@ end
 
 bash 'systemd-reload-config' do
   code "systemctl daemon-reload"
-	only_if { IsCentOS7orAbove }
+	only_if { (IsCentOS7orAbove or IsUbuntuWithSystemd) }
 end
 
 service 'docker' do
